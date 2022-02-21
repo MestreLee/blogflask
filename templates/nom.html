@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<br>
+	{% if nom %}
+		<h1> Hola, {{ nom|title }}!</h1>
+	{% else %}
+		<h2>Com et dius?</h2>
+		<br>
+		<form method="POST">
+			{{ form.hidden_tag() }}
+
+			{{ form.nom.label(class="form-label") }}
+			{{ form.nom(class="form-control") }}
+			<br/>
+			{{ form.submit(class="btn btn-primary") }}
+		</form>
+	{% endif %}
+{% endblock %}
