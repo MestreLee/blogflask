@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -33,4 +33,5 @@ def nom():
 	if form.validate_on_submit():
 		nom = form.nom.data
 		form.nom.data = ''
+		flash('Molt be {}!'.format(nom))
 	return render_template('nom.html', title=nom, nom=nom, form=form)
