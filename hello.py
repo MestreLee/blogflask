@@ -125,6 +125,22 @@ def delete_usuari(id):
 	else:
 		return "Aquest usuari no existeix, capsigrany!"
 
+# Tornem els usuaris en format JSON
+
+@app.route('/api')
+def api():
+	# user1 = Users.query.get_or_404(1)
+	# user2 = Users.query.get_or_404(2)
+	# user5 = Users.query.get_or_404(5)
+	# list_users = [user1, user2, user5]
+	llista_users = []
+	llista_users = Users.query.all()
+
+	json_users={}
+	for user in llista_users:
+		json_users['usuari {}'.format(user.id)] = {"id" : user.id, "nom" : user.nom, "Pelicula preferida" : user.pelicula_preferida, "Data Creacio" : user.date_Added}
+
+	return json_users
 
 if __name__ == '__main__':
     app.run(debug=True)
