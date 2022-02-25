@@ -15,7 +15,8 @@
 	<table class="table table-bordered table-stripped table-hover">
   		{% for usuari in usuaris %}
 		<tr>
-			<td><a href="{{ url_for('update_usuari', id=usuari.id) }}">{{ usuari }}</a></td>
+			<td>{{ usuari }} <a class="btn btn-primary" href="{{ url_for('update_usuari', id=usuari.id) }}" role="button">Update</a> <a class="btn btn-danger" href="{{ url_for('delete_usuari', id=usuari.id) }}" role="button">Delete</a></td>
+
 		</tr>
 		{% endfor %}
 	</table>
