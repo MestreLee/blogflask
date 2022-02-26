@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<br>
+	{% for message in get_flashed_messages() %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  			{{ message }}
+  			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	{% endfor %}
+		<h2>Publica alguna cosa:</h2>
+		<br>
+		<form method="POST">
+			{{ form.hidden_tag() }}
+
+			{{ form.titol.label(class="form-label") }}
+			{{ form.titol(class="form-control") }}
+			<br/>
+			{{ form.autor.label(class="form-label") }}
+			{{ form.autor(class="form-control") }}
+			<br/>
+			{{ form.contingut.label(class="form-label") }}
+			{{ form.contingut(class="form-control") }}
+			<br/>
+			{{ form.submit(class="btn btn-primary") }}
+		</form>
+{% endblock %}
