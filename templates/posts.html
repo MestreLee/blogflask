@@ -12,9 +12,9 @@
 	<h2>Llista de posts:</h2>
 	<br>
   		{% for post in posts %}
-  		    <h2 class="article-title">{{ post.titol }}</h2>
+  		    <br/>
+  		    <h2 class="article-title"><a href="{{ url_for('post', id=post.id) }}">{{ post.titol }}</a></h2>
       		<p class="article-content">{{ post.contingut }}</p>
 		{% endfor %}
-
 		
 {% endblock %}

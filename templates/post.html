@@ -2,9 +2,14 @@
 
 {% block content %}
 	<br/>
-	<h2 class="article-title">{{ post.titol }}</h2>
+	<h2 class="article-title">{{ post.titol }}</h2> 
 	<br>
-  	<p class="article-author">Autor: {{ post.autor }}</p>
+	<a class="btn btn-primary" href="{{ url_for('update_post', id=post.id) }}" role="button">Modificar</a>
+	<a class="btn btn-danger" href="{{ url_for('delete_post', id=post.id) }}" role="button">Eliminar</a>
+	<br>
+	<br/>
+  	<h4>Autor: {{ post.autor }}</h4>
     <p class="article-content">Contingut: {{ post.contingut }}</p>
-		
+    <br/>
+    <a class="btn btn-outline-secondary" href="{{ url_for('posts') }}" role="button">Tornar a Posts</a>		
 {% endblock %}

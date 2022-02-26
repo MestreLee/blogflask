@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin, logout_user, LoginManager, login_required, logout_user, current_user
 
 
 #Inicialitzem Flask
@@ -37,7 +38,7 @@ migrate = Migrate(app, db)
 
 # Creem el model d'usuari
 
-class Users(db.Model):
+class Users(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key=True)
 	nom = db.Column(db.String(200), nullable=False)
 	email = db.Column(db.String(120), nullable=False, unique=True)
@@ -157,12 +158,10 @@ def delete_usuari(id):
 		db.session.commit()
 		flash('Usuari {} eliminat!'.format(user))
 		return redirect(url_for('usuaris'))
-	else:
-		return "Aquest usuari no existeix, capsigrany!"
 
 @app.route('/posts')
 def posts():
-	posts = Posts.query.all()
+	posts = Posts.query.order_by(Posts.data_publicacio)
 	return render_template('posts.html', title='Posts', posts=posts)
 
 @app.route('/posts/nou', methods=['GET', 'POST'])
@@ -206,6 +205,15 @@ def update_post(id):
 			form.autor.data = post.autor
 			form.contingut.data = post.contingut
 	return render_template('update_post.html', title='Update post', form=form)
+
+@app.route('/posts/<int:id>/delete')
+def delete_post(id):
+	post = Posts.query.get_or_404(id)
+	if post:
+		db.session.delete(post)
+		db.session.commit()
+		flash('Post {} eliminat!'.format(post.titol))
+		return redirect(url_for('posts'))
 
 # Tornem els usuaris en format JSON
 
