@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<body align=center>
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4"><legend><h1>Calculadora</h1></legend></div>
+			<div class="col-md-4"></div>
+		</div>
+			<br>
+			<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<form class="form-horizontal" action={{ url_for('resultat') }}  method="post">
+					<div class="form-group">
+						<label class="control-label col-xs-3" for="numero">Número 1: </label>
+						<div class="col-xs-7">
+							<input type="number" class="form-control" name="numero" placeholder="{{ numero }}" value="{{ numero }}">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-3" for="numero2">Número 2: </label>
+						<div class="col-xs-7">
+							<input type="number" class="form-control" name="numero2" placeholder="{{ numero2 }}" value="{{ numero2 }}">
+						</div>
+					</div>
+					<div class="form-group">
+            			<label class="control-label col-xs-3">Operació:</label>
+            			<div class="col-xs-5">
+                			<select class="form-control" name="operacio">
+      							<option value="Suma"{% if operant==1 %} selected="selected"{% endif %}>Suma</option>
+      							<option value="Resta"{% if operant==2 %} selected="selected"{% endif %}>Resta</option>
+      							<option value="Multiplicacio"{% if operant==3 %} selected="selected"{% endif %}>Multiplicacio</option>
+     							<option value="Divisio"{% if operant==4 %} selected="selected"{% endif %}>Divisio</option>
+    						</select>
+            			</div>
+            		</div>
+            		<div class="form-group">
+						<label class="control-label col-xs-3" for="resultat">Resultat:</label>
+						<div class="col-xs-7">
+							<input type="number" class="form-control" name="resultat" placeholder="&nbsp;0&nbsp;">
+						</div>
+					</div>
+					<div class="form-group">
+            			<div class="col-xs-offset-3 col-xs-9">
+                			<input type="submit" class="btn btn-success" value="Submit">
+            			</div>
+        			</div>
+        		</form>
+        	</div>
+        	<div class="col-md-4"></div></div>
+		</div>
+	</body>
+{% endblock %}

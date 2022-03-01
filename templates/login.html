@@ -8,33 +8,17 @@
   			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 	{% endfor %}
-	{% if username %}
-		<h1> Hola, {{ username }}!</h1>
-	{% else %}
-		<h2>Crea un nou usuari:</h2>
+		<h1> Login:</h1>
 		<br>
 		<form method="POST">
 			{{ form.hidden_tag() }}
 
-			{{ form.nom.label(class="form-label") }}
-			{{ form.nom(class="form-control") }}
-			<br/>
 			{{ form.username.label(class="form-label") }}
 			{{ form.username(class="form-control") }}
-			<br/>
-			{{ form.email.label(class="form-label") }}
-			{{ form.email(class="form-control") }}
-			<br/>
-			{{ form.pelicula_preferida.label(class="form-label") }}
-			{{ form.pelicula_preferida(class="form-control") }}
 			<br/>
 			{{ form.password.label(class="form-label") }}
 			{{ form.password(class="form-control") }}
 			<br/>
-			{{ form.password2.label(class="form-label") }}
-			{{ form.password2(class="form-control") }}
-			<br/>
 			{{ form.submit(class="btn btn-primary") }}
 		</form>
-	{% endif %}
 {% endblock %}

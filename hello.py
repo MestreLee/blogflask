@@ -1,12 +1,13 @@
 from flask import Flask, render_template, url_for, redirect, flash, request
 from flask_wtf import FlaskForm
 from datetime import datetime
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, TextAreaField
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, logout_user, LoginManager, login_required, logout_user, current_user
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+import random
 
 
 #Inicialitzem Flask
@@ -36,10 +37,21 @@ migrate = Migrate(app, db)
 		## 2 - flask db migrate -m 'missatge' (p.e. 'migració inicial')
 		## 3 - flask db upgrade
 
+# Configuració flask login
+
+login_manager = LoginManager()
+login_manager.init_app(app)	
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+	return Users.query.get(int(user_id))
+
 # Creem el model d'usuari
 
 class Users(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(20), nullable=False, unique=True)
 	nom = db.Column(db.String(200), nullable=False)
 	email = db.Column(db.String(120), nullable=False, unique=True)
 	date_Added = db.Column(db.DateTime, default=datetime.utcnow)
@@ -61,7 +73,7 @@ class Users(db.Model, UserMixin):
 
 	# Creem un tostring
 	def __repr__(self):
-		return 'Id: {}, Nom: {}, email: {}, pel.lícula preferida: {}, password: {}'.format(self.id, self.nom, self.email, self.pelicula_preferida, self.password_hash)
+		return 'Id: {}, Nom: {}, email: {}, username: {}'.format(self.id, self.nom, self.email, self.username)
 
 # Creem el model de post
 
@@ -78,14 +90,28 @@ class FormulariNom(FlaskForm):
 	nom = StringField("Nom: ", validators=[DataRequired()])
 	submit = SubmitField()
 
+# Creem un formulari senzill pel joc de càlculs
+
+class FormulariCalculs(FlaskForm):
+	resultat = IntegerField("Resultat: ", validators=[DataRequired()])
+	submit = SubmitField()
+
 # Creem un formulari per omplir els usuaris de la base de dades
 
 class FormulariUsuari(FlaskForm):
 	nom = StringField('Nom: ', validators=[DataRequired()])
+	username = StringField('Username: ', validators=[DataRequired()])
 	email = StringField('Email: ', validators=[DataRequired()])
 	pelicula_preferida = StringField()
 	password = PasswordField('Password', validators=[DataRequired(), EqualTo('password2')])
 	password2 = PasswordField('Confirm Password', validators=[DataRequired()])
+	submit = SubmitField()
+
+ # Creem un formulari per fer login
+
+class FormulariLogin(FlaskForm):
+	username = StringField('Username: ', validators=[DataRequired()])
+	password = PasswordField('Password: ', validators=[DataRequired()])
 	submit = SubmitField()
 
  # Creem un formulari per omplir els posts de la base de dades
@@ -98,7 +124,10 @@ class FormulariPost(FlaskForm):
 
 @app.route('/')
 def index():
-	nom = 'Bernat'
+	if current_user.is_authenticated:
+		nom = current_user.nom
+	else:
+		nom = 'foraster'
 	return render_template ('index.html', title='Home', nom=nom)
 
 @app.route('/about')
@@ -114,40 +143,46 @@ def usuaris():
 def usuari_nou():
 	form = FormulariUsuari()
 	nom = None
+	username = None
 	email = None
 	if form.validate_on_submit():
 		user = Users.query.filter_by(email=form.email.data).first()
 		if user is None:
 			nom = form.nom.data
+			username = form.username.data 
 			email = form.email.data
 			pelicula_preferida = form.pelicula_preferida.data
 			#Hash the password
 			hashed_password = generate_password_hash(form.password.data, 'sha256')
-			user = Users(nom=nom, email=email, pelicula_preferida=pelicula_preferida, password_hash=hashed_password)
+			user = Users(nom=nom, username=username, email=email, pelicula_preferida=pelicula_preferida, password_hash=hashed_password)
 			db.session.add(user)
 			db.session.commit()
-			flash('Molt be {} {} {} {}!'.format(nom, email, pelicula_preferida, hashed_password))
+			flash('Molt be {}!'.format(username))
 			return redirect(url_for('usuaris'))
 		else:
 			flash('Aquest correu ja existeix!')
-	return render_template('usuari_nou.html', title='Usuari Nou', nom=nom, form=form)
+	return render_template('usuari_nou.html', title='Usuari Nou', username=username, form=form)
 
 @app.route('/usuaris/<int:id>', methods=['GET', 'POST'])
+@login_required
 def update_usuari(id):
 	user = Users.query.get_or_404(id)
 	if user:
-		form = FormulariUsuari()
-		if form.validate_on_submit():
-			user.nom = form.nom.data
-			user.email = form.email.data 
-			user.pelicula_preferida = form.pelicula_preferida.data
-			db.session.commit()
-			flash('Molt be {} {}!'.format(user.nom, user.email))
-			return redirect(url_for('usuaris'))
-		elif request.method == 'GET':
-			form.nom.data = user.nom 
-			form.email.data = user.email
-			form.pelicula_preferida.data = user.pelicula_preferida
+		if current_user.id == user.id:
+			form = FormulariUsuari()
+			if form.validate_on_submit():
+				user.nom = form.nom.data
+				user.email = form.email.data 
+				user.pelicula_preferida = form.pelicula_preferida.data
+				db.session.commit()
+				flash('Molt be {} {}!'.format(user.nom, user.email))
+				return redirect(url_for('usuaris'))
+			elif request.method == 'GET':
+				form.nom.data = user.nom 
+				form.email.data = user.email
+				form.pelicula_preferida.data = user.pelicula_preferida
+		else:
+			return redirect(url_for('update_usuari', id=current_user.id))
 	return render_template('update_usuari.html', title='Update usuari', form=form)
 
 @app.route('/usuaris/<int:id>/delete')
@@ -158,6 +193,37 @@ def delete_usuari(id):
 		db.session.commit()
 		flash('Usuari {} eliminat!'.format(user))
 		return redirect(url_for('usuaris'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	form = FormulariLogin()
+	if form.validate_on_submit():
+		user = Users.query.filter_by(username = form.username.data).first()
+		if user:
+			# Comprovem el password hash
+			if check_password_hash(user.password_hash, form.password.data):
+				login_user(user)
+				flash('Login correcte!')
+				return redirect(url_for('dashboard'))
+			else:
+				flash('Password incorrecte!')
+
+		else:
+			flash('Usuari inexistent!')
+	return render_template('login.html', title='Login', form=form)
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+	logout_user()
+	flash("Sessió acabada! Vagi bé!")
+	return redirect(url_for('login'))
+
+ # Obliguem a l'usuari a estar loguejat si vol accedir al dashboard mitjançant loguin_required
+@app.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+	return render_template('dashboard.html', title='Dashboard')
 
 @app.route('/posts')
 def posts():
@@ -227,6 +293,42 @@ def api():
 		json_users['usuari {}'.format(user.id)] = {"id" : user.id, "nom" : user.nom, "Pelicula preferida" : user.pelicula_preferida, "Data Creacio" : user.date_Added}
 
 	return json_users
+
+# Trastegem una miqueta
+
+@app.route('/calculadora')
+def calculadora():
+    numero = random.randint(1, 100)
+    numero2 = random.randint(1, 25)
+    operant = random.randint(1, 4)
+    if operant == 4:
+    	trobat = False
+    	while not trobat:
+    		if numero % numero2 != 0:
+    			numero = random.randint(1, 5)
+    			numero2 = random.randint(1, 5)
+    		else:
+    			trobat = True
+    return render_template('form.html', numero=numero, numero2=numero2, operant=operant)
+
+
+@app.route('/resultat', methods=['POST'])
+def resultat():
+    numero = request.form.get("numero", type=int)
+    numero2 = request.form.get("numero2", type=int)
+    resultat = request.form.get('resultat', type=int)
+    operacio = request.form.get("operacio")
+    if(operacio == 'Suma'):
+        result = numero + numero2
+    elif(operacio == 'Resta'):
+        result = numero - numero2
+    elif(operacio == 'Multiplicacio'):
+        result = numero * numero2
+    elif(operacio == 'Divisio'):
+        result = numero / numero2
+    else:
+        result = 'Opcio no vàlida!'
+    return render_template('result.html', result=result, resultat=resultat)
 
 if __name__ == '__main__':
     app.run(debug=True)
