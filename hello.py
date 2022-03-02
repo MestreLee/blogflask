@@ -296,6 +296,10 @@ def api():
 
 # Trastegem una miqueta
 
+@app.route('/tictactoe')
+def tictactoe():
+	return render_template('tictactoe.html')
+
 @app.route('/calculadora')
 def calculadora():
     numero = random.randint(1, 100)
@@ -310,7 +314,6 @@ def calculadora():
     		else:
     			trobat = True
     return render_template('form.html', numero=numero, numero2=numero2, operant=operant)
-
 
 @app.route('/resultat', methods=['POST'])
 def resultat():
@@ -329,6 +332,7 @@ def resultat():
     else:
         result = 'Opcio no vàlida!'
     return render_template('result.html', result=result, resultat=resultat)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
