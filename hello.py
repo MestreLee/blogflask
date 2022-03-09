@@ -300,6 +300,10 @@ def api():
 def tictactoe():
 	return render_template('tictactoe.html')
 
+@app.route('/calculadora_javascript')
+def calculadora_javascript():
+	return render_template('calculadora_javascript.html')
+
 @app.route('/calculadora')
 def calculadora():
     numero = random.randint(1, 100)

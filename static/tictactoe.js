@@ -57,7 +57,7 @@ window.addEventListener('DOMContentLoaded', () => {
         announce(TIE);
     }
 
-    const announce = (type) => {
+    function announce(type){
         switch(type){
             case PLAYERO_WON:
                 announcer.innerHTML = 'Player <span class="playerO">O</span> Won';
@@ -71,6 +71,20 @@ window.addEventListener('DOMContentLoaded', () => {
         announcer.classList.remove('hide');
     };
 
+    // const announce = (type) => {
+    //     switch(type){
+    //         case PLAYERO_WON:
+    //             announcer.innerHTML = 'Player <span class="playerO">O</span> Won';
+    //             break;
+    //         case PLAYERX_WON:
+    //             announcer.innerHTML = 'Player <span class="playerX">X</span> Won';
+    //             break;
+    //         case TIE:
+    //             announcer.innerText = 'Tie';
+    //     }
+    //     announcer.classList.remove('hide');
+    // };
+
     const isValidAction = (tile) => {
         if (tile.innerText === 'X' || tile.innerText === 'O'){
             return false;
@@ -79,9 +93,13 @@ window.addEventListener('DOMContentLoaded', () => {
         return true;
     };
 
-    const updateBoard =  (index) => {
+    function updateBoard(index){
         board[index] = currentPlayer;
     }
+
+    // const updateBoard =  (index) => {
+    //     board[index] = currentPlayer;
+    // }
 
     const changePlayer = () => {
         playerDisplay.classList.remove(`player${currentPlayer}`);
@@ -100,7 +118,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    const resetBoard = () => {
+    function resetBoard(){
         board = ['', '', '', '', '', '', '', '', ''];
         isGameActive = true;
         announcer.classList.add('hide');
@@ -115,6 +133,22 @@ window.addEventListener('DOMContentLoaded', () => {
             tile.classList.remove('playerO');
         });
     }
+
+    // const resetBoard = () => {
+    //     board = ['', '', '', '', '', '', '', '', ''];
+    //     isGameActive = true;
+    //     announcer.classList.add('hide');
+
+    //     if (currentPlayer === 'O') {
+    //         changePlayer();
+    //     }
+
+    //     tiles.forEach(tile => {
+    //         tile.innerText = '';
+    //         tile.classList.remove('playerX');
+    //         tile.classList.remove('playerO');
+    //     });
+    // }
 
     tiles.forEach( (tile, index) => {
         tile.addEventListener('click', () => userAction(tile, index));
